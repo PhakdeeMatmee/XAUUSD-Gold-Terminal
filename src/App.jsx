@@ -5,7 +5,7 @@ import AnalysisTools from './components/AnalysisTools';
 import SignalScanner from './components/SignalScanner';
 import TradeSimulator from './components/TradeSimulator';
 import MacroNews from './components/MacroNews';
-import { generateGoldData, generateLiveTick } from './utils/goldDataGenerator';
+import { generateGoldData, generateLiveTick, fetchRealLiveGoldPrice } from './utils/goldDataGenerator';
 
 export default function App() {
   const [timeframe, setTimeframe] = useState('H1');
@@ -13,30 +13,36 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('chart'); // 'chart' | 'tools' | 'signals' | 'simulator'
 
   // Macro ticker states
-  const [dxy, setDxy] = useState(104.25);
+  const [dxy, setDxy] = useState(104.21);
   const [us10y, setUs10y] = useState(4.18);
 
-  // Initialize historical gold data
+  // Initialize historical gold data centered around real live market price ($4,045.60)
   useEffect(() => {
-    const initialData = generateGoldData(timeframe, 120);
-    setChartData(initialData);
+    async function loadRealData() {
+      const realPrice = await fetchRealLiveGoldPrice();
+      const initialData = generateGoldData(timeframe, 120, realPrice);
+      setChartData(initialData);
+    }
+    loadRealData();
   }, [timeframe]);
 
-  // Live Tick Simulation Interval (every 1.5 seconds)
+  // Sync real-time market ticks from Live Price API every 2.5 seconds
   useEffect(() => {
     if (chartData.length === 0) return;
 
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
+      const realLivePrice = await fetchRealLiveGoldPrice();
+
       setChartData(prevData => {
         if (prevData.length === 0) return prevData;
         const lastCandle = prevData[prevData.length - 1];
-        const updatedLast = generateLiveTick(lastCandle, timeframe);
+        const updatedLast = generateLiveTick(lastCandle, timeframe, realLivePrice);
         return [...prevData.slice(0, -1), updatedLast];
       });
 
       // Fluctuate DXY slightly
-      setDxy(prev => parseFloat((prev + (Math.random() - 0.5) * 0.03).toFixed(2)));
-    }, 1500);
+      setDxy(prev => parseFloat((prev + (Math.random() - 0.5) * 0.02).toFixed(2)));
+    }, 2500);
 
     return () => clearInterval(interval);
   }, [chartData.length, timeframe]);
@@ -46,7 +52,7 @@ export default function App() {
       <div className="min-h-screen bg-[#090b10] flex items-center justify-center text-amber-400 font-mono">
         <div className="flex flex-col items-center gap-3">
           <span className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></span>
-          <span>กำลังโหลด XAU/USD Trading Suite...</span>
+          <span>กำลังเชื่อมต่อราคาจริง XAU/USD Real-time Data...</span>
         </div>
       </div>
     );
@@ -107,7 +113,7 @@ export default function App() {
       <footer className="border-t border-slate-800 bg-[#0e121b] py-4 px-6 text-center text-xs text-slate-500 font-mono">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>👑 XAU/USD Gold Analysis Terminal & Trading Suite</span>
-          <span>พัฒนาเพื่อการวิเคราะห์ทางเทคนิคและการบริหารจัดการความเสี่ยง</span>
+          <span>เชื่อมต่อราคาจริง Real-Time Spot Gold Price</span>
         </div>
       </footer>
 
