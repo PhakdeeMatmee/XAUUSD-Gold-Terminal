@@ -16,7 +16,7 @@ export default function App() {
   const [dxy, setDxy] = useState(104.21);
   const [us10y, setUs10y] = useState(4.18);
 
-  // Initialize historical gold data centered around real live market price ($4,045.60)
+  // Initialize historical gold data centered around real live market price
   useEffect(() => {
     async function loadRealData() {
       const realPrice = await fetchRealLiveGoldPrice();
@@ -79,30 +79,31 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
         
-        {/* Main Tab Content */}
-        {activeTab === 'chart' && (
-          <div className="flex flex-col gap-6">
-            <InteractiveChart
-              data={chartData}
-              timeframe={timeframe}
-              setTimeframe={setTimeframe}
-              liveTick={currentCandle}
-            />
-            <SignalScanner data={chartData} currentPrice={currentPrice} />
-          </div>
-        )}
-
-        {activeTab === 'tools' && (
-          <AnalysisTools currentPrice={currentPrice} data={chartData} />
-        )}
-
-        {activeTab === 'signals' && (
+        {/* Chart Tab */}
+        <div className={activeTab === 'chart' ? 'flex flex-col gap-6' : 'hidden'}>
+          <InteractiveChart
+            data={chartData}
+            timeframe={timeframe}
+            setTimeframe={setTimeframe}
+            liveTick={currentCandle}
+          />
           <SignalScanner data={chartData} currentPrice={currentPrice} />
-        )}
+        </div>
 
-        {activeTab === 'simulator' && (
+        {/* Tools Tab */}
+        <div className={activeTab === 'tools' ? 'block' : 'hidden'}>
+          <AnalysisTools currentPrice={currentPrice} data={chartData} />
+        </div>
+
+        {/* Signals Tab */}
+        <div className={activeTab === 'signals' ? 'block' : 'hidden'}>
+          <SignalScanner data={chartData} currentPrice={currentPrice} />
+        </div>
+
+        {/* Simulator Tab (Mounted permanently so state & open trades never unmount on tab switch) */}
+        <div className={activeTab === 'simulator' ? 'block' : 'hidden'}>
           <TradeSimulator currentPrice={currentPrice} />
-        )}
+        </div>
 
         {/* Bottom Macro Economic News Dashboard */}
         <MacroNews />

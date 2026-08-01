@@ -4,23 +4,26 @@ import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCir
 export default function TradeSimulator({ currentPrice }) {
   // Load initial balance from localStorage or default to 10000
   const [balance, setBalance] = useState(() => {
-    const saved = localStorage.getItem('xau_sim_balance');
+    const saved = localStorage.getItem('xau_sim_balance_v3');
     return saved !== null ? parseFloat(saved) : 10000;
   });
 
   // Load positions from localStorage
   const [positions, setPositions] = useState(() => {
-    const saved = localStorage.getItem('xau_sim_positions');
-    return saved !== null ? JSON.parse(saved) : [];
+    const saved = localStorage.getItem('xau_sim_positions_v3');
+    if (saved !== null) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [];
   });
 
-  // Load history from localStorage
+  // Load history from localStorage (Empty array by default if cleared, no auto-re-injecting mock trades)
   const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem('xau_sim_history');
-    return saved !== null ? JSON.parse(saved) : [
-      { id: 1, type: 'BUY', lot: 0.5, entry: 4035.20, exit: 4068.50, pnl: 1665.00, result: 'WIN', date: '2026-07-30' },
-      { id: 2, type: 'SELL', lot: 0.3, entry: 4080.00, exit: 4092.10, pnl: -363.00, result: 'LOSS', date: '2026-07-29' }
-    ];
+    const saved = localStorage.getItem('xau_sim_history_v3');
+    if (saved !== null) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [];
   });
 
   const [tradeType, setTradeType] = useState('BUY');
@@ -36,15 +39,15 @@ export default function TradeSimulator({ currentPrice }) {
 
   // Auto save balance, positions, and history to localStorage whenever state changes
   useEffect(() => {
-    localStorage.setItem('xau_sim_balance', balance.toString());
+    localStorage.setItem('xau_sim_balance_v3', balance.toString());
   }, [balance]);
 
   useEffect(() => {
-    localStorage.setItem('xau_sim_positions', JSON.stringify(positions));
+    localStorage.setItem('xau_sim_positions_v3', JSON.stringify(positions));
   }, [positions]);
 
   useEffect(() => {
-    localStorage.setItem('xau_sim_history', JSON.stringify(history));
+    localStorage.setItem('xau_sim_history_v3', JSON.stringify(history));
   }, [history]);
 
   // Auto update SL/TP default values when currentPrice changes if user hasn't edited
@@ -153,13 +156,13 @@ export default function TradeSimulator({ currentPrice }) {
     }
 
     setBalance(val);
-    localStorage.setItem('xau_sim_balance', val.toString());
+    localStorage.setItem('xau_sim_balance_v3', val.toString());
 
     if (resetHistoryWithBalance) {
       setPositions([]);
       setHistory([]);
-      localStorage.setItem('xau_sim_positions', JSON.stringify([]));
-      localStorage.setItem('xau_sim_history', JSON.stringify([]));
+      localStorage.setItem('xau_sim_positions_v3', JSON.stringify([]));
+      localStorage.setItem('xau_sim_history_v3', JSON.stringify([]));
     }
     setShowBalanceModal(false);
     showToast(`บันทึกเงินพอร์ตจำลองใหม่เป็น $${val.toLocaleString()} เรียบร้อยแล้ว (บันทึกถาวร)`, 'success');
