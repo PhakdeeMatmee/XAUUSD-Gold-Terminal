@@ -2,12 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, RefreshCw, Activity, DollarSign, Target, Settings, Sliders, X } from 'lucide-react';
 
 export default function TradeSimulator({ currentPrice }) {
-  const [balance, setBalance] = useState(10000);
-  const [positions, setPositions] = useState([]);
-  const [history, setHistory] = useState([
-    { id: 1, type: 'BUY', lot: 0.5, entry: 4035.20, exit: 4068.50, pnl: 1665.00, result: 'WIN', date: '2026-07-30' },
-    { id: 2, type: 'SELL', lot: 0.3, entry: 4080.00, exit: 4092.10, pnl: -363.00, result: 'LOSS', date: '2026-07-29' }
-  ]);
+  // Load initial balance from localStorage or default to 10000
+  const [balance, setBalance] = useState(() => {
+    const saved = localStorage.getItem('xau_sim_balance');
+    return saved !== null ? parseFloat(saved) : 10000;
+  });
+
+  // Load positions from localStorage
+  const [positions, setPositions] = useState(() => {
+    const saved = localStorage.getItem('xau_sim_positions');
+    return saved !== null ? JSON.parse(saved) : [];
+  });
+
+  // Load history from localStorage
+  const [history, setHistory] = useState(() => {
+    const saved = localStorage.getItem('xau_sim_history');
+    return saved !== null ? JSON.parse(saved) : [
+      { id: 1, type: 'BUY', lot: 0.5, entry: 4035.20, exit: 4068.50, pnl: 1665.00, result: 'WIN', date: '2026-07-30' },
+      { id: 2, type: 'SELL', lot: 0.3, entry: 4080.00, exit: 4092.10, pnl: -363.00, result: 'LOSS', date: '2026-07-29' }
+    ];
+  });
 
   const [tradeType, setTradeType] = useState('BUY');
   const [lotSize, setLotSize] = useState(0.2);
@@ -19,6 +33,19 @@ export default function TradeSimulator({ currentPrice }) {
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [customBalanceInput, setCustomBalanceInput] = useState('10000');
   const [resetHistoryWithBalance, setResetHistoryWithBalance] = useState(false);
+
+  // Auto save balance, positions, and history to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('xau_sim_balance', balance.toString());
+  }, [balance]);
+
+  useEffect(() => {
+    localStorage.setItem('xau_sim_positions', JSON.stringify(positions));
+  }, [positions]);
+
+  useEffect(() => {
+    localStorage.setItem('xau_sim_history', JSON.stringify(history));
+  }, [history]);
 
   // Auto update SL/TP default values when currentPrice changes if user hasn't edited
   useEffect(() => {
@@ -117,7 +144,7 @@ export default function TradeSimulator({ currentPrice }) {
     }
   };
 
-  // Apply Custom Balance Setting
+  // Apply Custom Balance Setting permanently
   const handleApplyCustomBalance = () => {
     const val = parseFloat(customBalanceInput);
     if (isNaN(val) || val <= 0) {
@@ -126,12 +153,16 @@ export default function TradeSimulator({ currentPrice }) {
     }
 
     setBalance(val);
+    localStorage.setItem('xau_sim_balance', val.toString());
+
     if (resetHistoryWithBalance) {
       setPositions([]);
       setHistory([]);
+      localStorage.setItem('xau_sim_positions', JSON.stringify([]));
+      localStorage.setItem('xau_sim_history', JSON.stringify([]));
     }
     setShowBalanceModal(false);
-    showToast(`กำหนดเงินพอร์ตจำลองใหม่เป็น $${val.toLocaleString()} เรียบร้อยแล้ว`, 'success');
+    showToast(`บันทึกเงินพอร์ตจำลองใหม่เป็น $${val.toLocaleString()} เรียบร้อยแล้ว (บันทึกถาวร)`, 'success');
   };
 
   // Calculate statistics
@@ -234,7 +265,7 @@ export default function TradeSimulator({ currentPrice }) {
                 onClick={handleApplyCustomBalance}
                 className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20"
               >
-                บันทึกยอดเงินพอร์ต
+                บันทึกยอดเงินพอร์ต (ถาวร)
               </button>
             </div>
           </div>
@@ -261,7 +292,7 @@ export default function TradeSimulator({ currentPrice }) {
           <button
             onClick={() => { setCustomBalanceInput(balance.toString()); setShowBalanceModal(true); }}
             className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-sans font-bold flex items-center gap-1.5 transition-all shadow-sm"
-            title="ตั้งค่ายอดเงินทุนจำลอง"
+            title="ตั้งค่ายอดเงินทุนจำลองแบบถาวร"
           >
             <Sliders size={13} />
             <span>ตั้งค่ายอดพอร์ต</span>
