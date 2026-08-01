@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, RefreshCw, Activity, DollarSign, Target, Settings, Sliders, X } from 'lucide-react';
+import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, RefreshCw, Activity, DollarSign, Target, Settings, Sliders, X, TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function TradeSimulator({ currentPrice }) {
   // Load initial balance from localStorage or default to 10000
@@ -17,7 +17,7 @@ export default function TradeSimulator({ currentPrice }) {
     return [];
   });
 
-  // Load history from localStorage (Empty array by default if cleared, no auto-re-injecting mock trades)
+  // Load history from localStorage
   const [history, setHistory] = useState(() => {
     const saved = localStorage.getItem('xau_sim_history_v3');
     if (saved !== null) {
@@ -168,8 +168,22 @@ export default function TradeSimulator({ currentPrice }) {
     showToast(`บันทึกเงินพอร์ตจำลองใหม่เป็น $${val.toLocaleString()} เรียบร้อยแล้ว (บันทึกถาวร)`, 'success');
   };
 
-  // Calculate statistics
-  const totalPnL = history.reduce((acc, h) => acc + h.pnl, 0);
+  // Calculate Real-time Floating (Unrealized) PnL of open positions
+  const floatingPnL = positions.reduce((acc, pos) => {
+    let pnl = 0;
+    if (pos.type === 'BUY') {
+      pnl = (currentPrice - pos.entry) * pos.lot * 100;
+    } else {
+      pnl = (pos.entry - currentPrice) * pos.lot * 100;
+    }
+    return acc + pnl;
+  }, 0);
+
+  // Real-time Equity = Cash Balance + Floating PnL
+  const equity = balance + floatingPnL;
+
+  // Calculate statistics for closed trades
+  const realizedPnL = history.reduce((acc, h) => acc + h.pnl, 0);
   const wins = history.filter(h => h.result === 'WIN').length;
   const winRate = history.length > 0 ? ((wins / history.length) * 100).toFixed(1) : 0;
 
@@ -285,34 +299,56 @@ export default function TradeSimulator({ currentPrice }) {
           <p className="text-xs text-slate-400 mt-0.5">ทดสอบเปิด-ปิดออเดอร์ตามราคาจริง พร้อมระบบชน TP/SL อัตโนมัติและติดตาม Win Rate</p>
         </div>
 
-        {/* Balance Stats Bar with Custom Balance Button */}
+        {/* Balance & Real-time Equity Stats Bar */}
         <div className="flex flex-wrap items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 font-mono text-sm">
+          
+          {/* Balance */}
           <div>
-            <span className="text-xs text-slate-400 block font-sans">พอร์ตจำลอง (Balance):</span>
-            <span className="font-extrabold text-amber-400 text-base">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="text-xs text-slate-400 block font-sans">เงินทุนหลัก (Balance):</span>
+            <span className="font-extrabold text-amber-400 text-base">
+              ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
           </div>
 
           <button
             onClick={() => { setCustomBalanceInput(balance.toString()); setShowBalanceModal(true); }}
-            className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-sans font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-sans font-bold flex items-center gap-1 transition-all shadow-sm"
             title="ตั้งค่ายอดเงินทุนจำลองแบบถาวร"
           >
-            <Sliders size={13} />
-            <span>ตั้งค่ายอดพอร์ต</span>
+            <Sliders size={12} />
+            <span>ตั้งค่า</span>
           </button>
 
           <div className="h-6 w-[1px] bg-slate-800 hidden sm:block"></div>
+
+          {/* Real-time Equity */}
           <div>
-            <span className="text-xs text-slate-400 block font-sans">กำไรสุทธิ (Total PnL):</span>
-            <span className={`font-bold ${totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-              {totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(2)}
+            <span className="text-xs text-slate-400 block font-sans">มูลค่าสุทธิ (Equity):</span>
+            <span className={`font-extrabold text-base ${
+              equity >= balance ? 'text-emerald-400' : 'text-rose-400'
+            }`}>
+              ${equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </div>
+
           <div className="h-6 w-[1px] bg-slate-800 hidden sm:block"></div>
+
+          {/* Floating PnL (Unrealized) */}
+          <div>
+            <span className="text-xs text-slate-400 block font-sans">กำไร/ขาดทุนวิ่งอยู่ (Floating PnL):</span>
+            <span className={`font-bold ${floatingPnL > 0 ? 'text-emerald-400' : floatingPnL < 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+              {floatingPnL > 0 ? '+' : ''}${floatingPnL.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="h-6 w-[1px] bg-slate-800 hidden sm:block"></div>
+
+          {/* Win Rate */}
           <div>
             <span className="text-xs text-slate-400 block font-sans">อัตรา Win Rate:</span>
             <span className="font-bold text-amber-400">{winRate}% ({wins}/{history.length})</span>
           </div>
+
         </div>
       </div>
 
@@ -479,7 +515,7 @@ export default function TradeSimulator({ currentPrice }) {
                         </span>
                         <button
                           onClick={() => closePosition(pos, currentPrice, 'MANUAL')}
-                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-sans font-semibold transition-all"
+                          className="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-sans font-bold transition-all"
                         >
                           ปิดออเดอร์ (Close)
                         </button>
@@ -493,7 +529,7 @@ export default function TradeSimulator({ currentPrice }) {
 
           {/* Trade History & Journal */}
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
-            <h3 className="text-sm font-bold text-white mb-3">บันทึกประวัติการเทรด (Trade History & Journal)</h3>
+            <h3 className="text-sm font-bold text-white mb-3">บันทึกประวัติการเทรดที่ปิดแล้ว (Trade History & Journal)</h3>
             
             {history.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-500">ไม่มีประวัติการเทรดที่ปิดแล้ว</div>
