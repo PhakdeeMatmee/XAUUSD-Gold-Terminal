@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, RefreshCw, Activity, DollarSign, Target, Trash2 } from 'lucide-react';
+import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, RefreshCw, Activity, DollarSign, Target, Settings, Sliders, X } from 'lucide-react';
 
 export default function TradeSimulator({ currentPrice }) {
   const [balance, setBalance] = useState(10000);
@@ -14,6 +14,11 @@ export default function TradeSimulator({ currentPrice }) {
   const [slPrice, setSlPrice] = useState((currentPrice - 8.00).toFixed(2));
   const [tpPrice, setTpPrice] = useState((currentPrice + 16.00).toFixed(2));
   const [toast, setToast] = useState(null);
+
+  // Custom Balance Modal/Panel state
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [customBalanceInput, setCustomBalanceInput] = useState('10000');
+  const [resetHistoryWithBalance, setResetHistoryWithBalance] = useState(false);
 
   // Auto update SL/TP default values when currentPrice changes if user hasn't edited
   useEffect(() => {
@@ -112,14 +117,21 @@ export default function TradeSimulator({ currentPrice }) {
     }
   };
 
-  // Reset simulator state
-  const handleResetAccount = () => {
-    if (window.confirm('คุณต้องการรีเซ็ตพอร์ตจำลองกลับเป็น $10,000 หรือไม่?')) {
-      setBalance(10000);
+  // Apply Custom Balance Setting
+  const handleApplyCustomBalance = () => {
+    const val = parseFloat(customBalanceInput);
+    if (isNaN(val) || val <= 0) {
+      showToast('กรุณาระบุจำนวนเงินพอร์ตจำลองให้ถูกต้อง (มากกว่า $0)', 'error');
+      return;
+    }
+
+    setBalance(val);
+    if (resetHistoryWithBalance) {
       setPositions([]);
       setHistory([]);
-      showToast('รีเซ็ตพอร์ตจำลองเรียบร้อยแล้ว', 'info');
     }
+    setShowBalanceModal(false);
+    showToast(`กำหนดเงินพอร์ตจำลองใหม่เป็น $${val.toLocaleString()} เรียบร้อยแล้ว`, 'success');
   };
 
   // Calculate statistics
@@ -145,6 +157,90 @@ export default function TradeSimulator({ currentPrice }) {
         </div>
       )}
 
+      {/* Custom Balance Setup Modal */}
+      {showBalanceModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0e121b] border border-amber-500/40 rounded-2xl p-6 max-w-md w-full shadow-2xl flex flex-col gap-5">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Sliders size={18} className="text-amber-400" />
+                ตั้งค่ายอดเงินพอร์ตจำลอง (Set Account Balance)
+              </h3>
+              <button
+                onClick={() => setShowBalanceModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Presets */}
+            <div>
+              <label className="text-xs text-slate-400 mb-2 block">เลือกยอดเงินทุนสำเร็จรูป (Presets):</label>
+              <div className="grid grid-cols-3 gap-2 font-mono text-xs">
+                {[500, 1000, 3000, 5000, 10000, 50000].map(amt => (
+                  <button
+                    key={amt}
+                    onClick={() => setCustomBalanceInput(amt.toString())}
+                    className={`py-2 px-3 rounded-xl border text-center font-bold transition-all ${
+                      customBalanceInput === amt.toString()
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20'
+                        : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-amber-500/50'
+                    }`}
+                  >
+                    ${amt.toLocaleString()}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Input */}
+            <div>
+              <label className="text-xs text-slate-400 mb-1.5 block">หรือระบุจำนวนเงินที่ต้องการ ($ USD):</label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-2.5 text-slate-500 font-mono font-bold">$</span>
+                <input
+                  type="number"
+                  step="100"
+                  min="1"
+                  value={customBalanceInput}
+                  onChange={(e) => setCustomBalanceInput(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-8 pr-4 py-2 text-base font-mono text-amber-400 font-bold focus:outline-none focus:border-amber-500"
+                  placeholder="เช่น 10000"
+                />
+              </div>
+            </div>
+
+            {/* Reset checkbox option */}
+            <label className="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+              <input
+                type="checkbox"
+                checked={resetHistoryWithBalance}
+                onChange={(e) => setResetHistoryWithBalance(e.target.checked)}
+                className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+              />
+              <span>ล้างประวัติการเทรดและออเดอร์ทั้งหมดเพื่อเริ่มนับใหม่</span>
+            </label>
+
+            {/* Modal Actions */}
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={() => setShowBalanceModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-slate-800 text-slate-400 font-semibold text-xs hover:bg-slate-800"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleApplyCustomBalance}
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20"
+              >
+                บันทึกยอดเงินพอร์ต
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Simulator Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
         <div>
@@ -155,12 +251,22 @@ export default function TradeSimulator({ currentPrice }) {
           <p className="text-xs text-slate-400 mt-0.5">ทดสอบเปิด-ปิดออเดอร์ตามราคาจริง พร้อมระบบชน TP/SL อัตโนมัติและติดตาม Win Rate</p>
         </div>
 
-        {/* Balance Stats Bar */}
-        <div className="flex flex-wrap items-center gap-4 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 font-mono text-sm">
+        {/* Balance Stats Bar with Custom Balance Button */}
+        <div className="flex flex-wrap items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 font-mono text-sm">
           <div>
             <span className="text-xs text-slate-400 block font-sans">พอร์ตจำลอง (Balance):</span>
-            <span className="font-bold text-white">${balance.toFixed(2)}</span>
+            <span className="font-extrabold text-amber-400 text-base">${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
+
+          <button
+            onClick={() => { setCustomBalanceInput(balance.toString()); setShowBalanceModal(true); }}
+            className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs font-sans font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            title="ตั้งค่ายอดเงินทุนจำลอง"
+          >
+            <Sliders size={13} />
+            <span>ตั้งค่ายอดพอร์ต</span>
+          </button>
+
           <div className="h-6 w-[1px] bg-slate-800 hidden sm:block"></div>
           <div>
             <span className="text-xs text-slate-400 block font-sans">กำไรสุทธิ (Total PnL):</span>
@@ -173,13 +279,6 @@ export default function TradeSimulator({ currentPrice }) {
             <span className="text-xs text-slate-400 block font-sans">อัตรา Win Rate:</span>
             <span className="font-bold text-amber-400">{winRate}% ({wins}/{history.length})</span>
           </div>
-          <button
-            onClick={handleResetAccount}
-            className="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg border border-slate-800"
-            title="รีเซ็ตพอร์ตกลับเป็น $10,000"
-          >
-            <RefreshCw size={14} />
-          </button>
         </div>
       </div>
 
