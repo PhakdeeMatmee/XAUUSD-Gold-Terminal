@@ -432,7 +432,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
         
         {/* Timeframe Selector */}
         <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
-          {['M15', 'H1', 'H4', 'D1'].map(tf => (
+          {['M1', 'M5', 'M15', 'H1', 'H4', 'D1'].map(tf => (
             <button
               key={tf}
               onClick={() => { setTimeframe(tf); setPanOffset(0); }}

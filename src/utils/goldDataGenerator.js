@@ -18,10 +18,11 @@ export async function fetchRealLiveGoldPrice() {
 
 export function generateGoldData(timeframe = 'H1', count = 120, baseMarketPrice = 4045.60) {
   const data = [];
-  let basePrice = baseMarketPrice;
   
   // Set timeframe interval in minutes
   let intervalMinutes = 60;
+  if (timeframe === 'M1') intervalMinutes = 1;
+  if (timeframe === 'M5') intervalMinutes = 5;
   if (timeframe === 'M15') intervalMinutes = 15;
   if (timeframe === 'H4') intervalMinutes = 240;
   if (timeframe === 'D1') intervalMinutes = 1440;
@@ -31,6 +32,8 @@ export function generateGoldData(timeframe = 'H1', count = 120, baseMarketPrice 
 
   // Volatility factor per timeframe
   const volatilityMap = {
+    'M1': 0.8,
+    'M5': 1.8,
     'M15': 3.5,
     'H1': 8.0,
     'H4': 18.0,
@@ -38,9 +41,8 @@ export function generateGoldData(timeframe = 'H1', count = 120, baseMarketPrice 
   };
   const vol = volatilityMap[timeframe] || 8.0;
 
-  // First generate backwards or forwards to ensure the LATEST candle matches baseMarketPrice
   const rawCandles = [];
-  let currentPriceWalk = baseMarketPrice - (count * 0.2); // Start slightly lower so latest is near real price
+  let currentPriceWalk = baseMarketPrice - (count * (intervalMinutes <= 5 ? 0.05 : 0.15));
 
   for (let i = 0; i < count; i++) {
     const noise = (Math.random() - 0.48) * vol;
@@ -83,6 +85,7 @@ function formatTimeLabel(date, timeframe) {
   if (timeframe === 'H4' || timeframe === 'H1') {
     return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:00`;
   }
+  // M1, M5, M15 show exact HH:MM
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
@@ -91,7 +94,7 @@ export function generateLiveTick(lastCandle, timeframe, realMarketPrice = null) 
   if (realMarketPrice) {
     newClose = realMarketPrice;
   } else {
-    const vol = timeframe === 'M15' ? 0.4 : timeframe === 'H1' ? 0.8 : 1.5;
+    const vol = timeframe === 'M1' ? 0.2 : timeframe === 'M5' ? 0.4 : timeframe === 'M15' ? 0.6 : timeframe === 'H1' ? 0.8 : 1.5;
     const delta = (Math.random() - 0.49) * vol;
     newClose = parseFloat((lastCandle.close + delta).toFixed(2));
   }
