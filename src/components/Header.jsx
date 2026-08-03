@@ -20,7 +20,7 @@ export default function Header({ currentPrice, priceChange, dxy, us10y, activeTa
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-bold text-base text-white tracking-wide font-mono">XAU/USD</h1>
+                <h1 className="font-bold text-base text-white tracking-wide font-mono">PHAKDEE XAU/USD</h1>
                 <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 whitespace-nowrap">
                   Gold Spot
                 </span>

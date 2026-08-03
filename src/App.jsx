@@ -52,7 +52,7 @@ export default function App() {
       <div className="min-h-screen bg-[#090b10] flex items-center justify-center text-amber-400 font-mono">
         <div className="flex flex-col items-center gap-3">
           <span className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></span>
-          <span>กำลังเชื่อมต่อราคาจริง XAU/USD Real-time Data...</span>
+          <span>กำลังเชื่อมต่อราคาจริง PHAKDEE XAU/USD Real-time Data...</span>
         </div>
       </div>
     );
@@ -113,7 +113,7 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-[#0e121b] py-4 px-6 text-center text-xs text-slate-500 font-mono">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>👑 XAU/USD Gold Analysis Terminal & Trading Suite</span>
+          <span>👑 PHAKDEE XAU/USD Gold Analysis Terminal & Trading Suite</span>
           <span>เชื่อมต่อราคาจริง Real-Time Spot Gold Price</span>
         </div>
       </footer>
