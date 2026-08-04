@@ -107,9 +107,9 @@ export default function App() {
   }
 
   const currentCandle = chartData[chartData.length - 1];
-  const firstCandle = chartData[0];
   const currentPrice = currentCandle.close;
-  const priceChange = currentPrice - firstCandle.open;
+  const priceChange = currentPrice - currentCandle.open;
+  const priceChangePercent = currentCandle.open !== 0 ? (priceChange / currentCandle.open) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500/20 selection:text-amber-500">
@@ -118,6 +118,8 @@ export default function App() {
       <Header
         currentPrice={currentPrice}
         priceChange={priceChange}
+        priceChangePercent={priceChangePercent}
+        timeframe={timeframe}
         dxy={dxy}
         us10y={us10y}
         activeTab={activeTab}

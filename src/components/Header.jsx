@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Activity, ShieldAlert, Zap, TrendingUp, TrendingDown, BarChart2, Settings, X, Eye, EyeOff } from 'lucide-react';
 
 export default function Header({ 
-  currentPrice, priceChange, dxy, us10y, activeTab, setActiveTab,
+  currentPrice, priceChange, priceChangePercent = 0, timeframe = 'H1', dxy, us10y, activeTab, setActiveTab,
   priceSource, setPriceSource, twelvedataApikey, setTwelvedataApikey, oandaConfig, setOandaConfig 
 }) {
   const isPositive = priceChange >= 0;
@@ -66,13 +66,13 @@ export default function Header({
           <div className="flex items-center gap-3 sm:gap-4 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800 font-mono text-xs">
             {/* Gold Live Price */}
             <div className="flex items-center gap-1.5">
-              <span className="text-slate-400 text-[11px]">XAU/USD:</span>
+              <span className="text-slate-400 text-[11px]">XAU/USD ({timeframe}):</span>
               <span className="text-sm font-bold text-slate-100 tracking-tight">${currentPrice.toFixed(2)}</span>
               <span className={`text-[10px] px-1 py-0.5 rounded font-semibold flex items-center gap-0.5 ${
                 isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
               }`}>
                 {isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-                {isPositive ? '+' : ''}{priceChange.toFixed(2)}
+                {isPositive ? '+' : ''}{priceChange.toFixed(2)} ({isPositive ? '+' : ''}{priceChangePercent.toFixed(2)}%)
               </span>
             </div>
 
