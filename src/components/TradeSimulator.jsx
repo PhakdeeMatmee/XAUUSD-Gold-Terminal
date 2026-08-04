@@ -293,7 +293,28 @@ export default function TradeSimulator({ currentPrice }) {
   const estTpGain = Math.abs((parseFloat(tpPrice || currentPrice) - currentPrice) * parseFloat(lotSize || 0) * 100);
 
   return (
-    <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-2xl flex flex-col gap-6 relative">
+    <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-2xl flex flex-col gap-6 relative overflow-hidden">
+      
+      {/* Trader Selection Tab Bar */}
+      <div className="flex border-b border-slate-800 -mx-6 -mt-6 bg-slate-900/50 overflow-hidden">
+        {[
+          { id: 'phakdee', label: 'บัญชีของ ภักดี' },
+          { id: 'suthas', label: 'บัญชีของ สุทศน์' },
+          { id: 'nok', label: 'บัญชีของ นก' }
+        ].map(t => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTrader(t.id)}
+            className={`flex-1 py-3.5 px-4 text-xs sm:text-sm font-bold transition-all border-b-2 cursor-pointer text-center whitespace-nowrap ${
+              activeTrader === t.id
+                ? 'bg-amber-500/10 text-amber-500 border-amber-500 font-extrabold'
+                : 'text-slate-400 hover:text-slate-200 border-transparent hover:bg-slate-800/40'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
       
       {/* Toast Notification Banner */}
       {toast && (
@@ -403,29 +424,6 @@ export default function TradeSimulator({ currentPrice }) {
         {/* Balance & Real-time Equity Stats Bar */}
         <div className="flex flex-wrap items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 font-mono text-sm">
           
-          {/* Active Trader Switcher */}
-          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 mr-1 shrink-0">
-            {[
-              { id: 'phakdee', label: 'ภักดี' },
-              { id: 'suthas', label: 'สุทศน์' },
-              { id: 'nok', label: 'นก' }
-            ].map(t => (
-              <button
-                key={t.id}
-                onClick={() => setActiveTrader(t.id)}
-                className={`px-2.5 py-0.5 rounded text-[11px] font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
-                  activeTrader === t.id
-                    ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="h-6 w-[1px] bg-slate-800 hidden sm:block mr-1"></div>
-
           {/* Balance */}
           <div>
             <span className="text-xs text-slate-400 block font-sans">เงินทุนหลัก (Balance):</span>
