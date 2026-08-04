@@ -27,7 +27,7 @@ export default function SignalScanner({ data, currentPrice }) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-white">ระบบสแกนสัญญาณเทรดทองคำ (Automated Technical Scanner)</h2>
+              <h2 className="text-lg font-bold text-slate-100">ระบบสแกนสัญญาณเทรดทองคำ (Automated Technical Scanner)</h2>
               <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs rounded font-mono font-semibold">AI Confluence Model</span>
             </div>
             <p className="text-xs text-slate-400">วิเคราะห์อัลกอริทึมจาก EMA Multi-Layer, RSI Divergence, MACD Momentum & Key Zones</p>
@@ -78,7 +78,7 @@ export default function SignalScanner({ data, currentPrice }) {
               
               <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
                 <span className="text-slate-500 block mb-1 font-sans">จุดเข้าซื้อ (Entry)</span>
-                <span className="text-sm font-bold text-white">${setup.entry.toFixed(2)}</span>
+                <span className="text-sm font-bold text-slate-100">${setup.entry.toFixed(2)}</span>
               </div>
 
               <div className="bg-slate-950 p-3 rounded-xl border border-rose-500/30">
@@ -125,7 +125,7 @@ export default function SignalScanner({ data, currentPrice }) {
         {/* Key Levels Overview Side Card */}
         <div className="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-slate-100 mb-4 flex items-center gap-2">
               <Target size={16} className="text-amber-400" />
               ระดับราคาสำคัญในตลาด (Key Levels)
             </h3>

@@ -13,7 +13,7 @@ export default function MacroNews() {
     <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-2xl flex flex-col gap-6">
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
             <Globe size={20} className="text-amber-400" />
             ข่าวสาร & ปัจจัยเศรษฐกิจมหภาค (Macroeconomic Dashboard)
           </h2>
@@ -32,7 +32,7 @@ export default function MacroNews() {
         
         {/* Economic Calendar */}
         <div className="lg:col-span-2 bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
-          <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-bold text-slate-100 mb-3 flex items-center gap-2">
             <Calendar size={16} className="text-amber-400" />
             ปฏิทินข่าวสำคัญที่มีผลกระทบสูง (High Impact Economic Calendar)
           </h3>
@@ -70,7 +70,7 @@ export default function MacroNews() {
         {/* Central Bank Demand & Geopolitics */}
         <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-bold text-slate-100 mb-3 flex items-center gap-2">
               <Flame size={16} className="text-amber-400" />
               สรุปปัจจัยหนุนทองคำ (Core Drivers)
             </h3>

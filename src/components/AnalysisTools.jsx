@@ -104,7 +104,7 @@ export default function AnalysisTools({ currentPrice, data }) {
                     type="number"
                     value={balance}
                     onChange={(e) => setBalance(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-7 pr-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-7 pr-3 py-2 text-sm font-mono text-slate-100 focus:outline-none focus:border-amber-500"
                   />
                 </div>
               </div>
@@ -150,7 +150,7 @@ export default function AnalysisTools({ currentPrice, data }) {
                     type="number"
                     value={slPips}
                     onChange={(e) => setSlPips(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-slate-100 focus:outline-none focus:border-amber-500"
                   />
                   <span className="text-[11px] text-slate-500 mt-1 block">
                     (หมายเหตุ: ทองคำ 50 Pips = การเคลื่อนที่ $5.00 / oz)
@@ -178,7 +178,7 @@ export default function AnalysisTools({ currentPrice, data }) {
               <select
                 value={leverage}
                 onChange={(e) => setLeverage(parseInt(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none focus:border-amber-500"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-mono text-slate-100 focus:outline-none focus:border-amber-500"
               >
                 <option value={50}>1:50</option>
                 <option value={100}>1:100</option>
@@ -196,7 +196,7 @@ export default function AnalysisTools({ currentPrice, data }) {
               <span className="text-xs font-semibold text-amber-400 uppercase tracking-widest block mb-1">ผลการคำนวณขนาดออเดอร์ (Calculated Outputs)</span>
               
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-4xl font-extrabold text-white font-mono">{lotSize}</span>
+                <span className="text-4xl font-extrabold text-slate-100 font-mono">{lotSize}</span>
                 <span className="text-lg font-bold text-amber-400">Lots</span>
               </div>
               <p className="text-xs text-slate-400 mt-1">ขนาด Lot ที่เหมาะสมเพื่อควบคุมความเสี่ยงไม่ให้เกิน ${maxRiskAmount.toFixed(2)}</p>
@@ -354,7 +354,7 @@ export default function AnalysisTools({ currentPrice, data }) {
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-sm text-white">US Dollar Index (DXY)</span>
+                <span className="font-bold text-sm text-slate-100">US Dollar Index (DXY)</span>
                 <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 font-mono text-xs rounded font-bold">-0.88</span>
               </div>
               <p className="text-xs text-slate-400">Inverse Correlation (ความสัมพันธ์ทิศทางตรงข้ามสูง)</p>
@@ -368,7 +368,7 @@ export default function AnalysisTools({ currentPrice, data }) {
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-sm text-white">US 10-Yr Yield (US10Y)</span>
+                <span className="font-bold text-sm text-slate-100">US 10-Yr Yield (US10Y)</span>
                 <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 font-mono text-xs rounded font-bold">-0.76</span>
               </div>
               <p className="text-xs text-slate-400">Inverse Correlation (ต้นทุนค่าเสียโอกาส)</p>
@@ -382,7 +382,7 @@ export default function AnalysisTools({ currentPrice, data }) {
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-sm text-white">Brent Crude Oil</span>
+                <span className="font-bold text-sm text-slate-100">Brent Crude Oil</span>
                 <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-mono text-xs rounded font-bold">+0.62</span>
               </div>
               <p className="text-xs text-slate-400">Positive Correlation (ตัวชี้วัดเงินเฟ้อสะท้อนตลาด)</p>
@@ -396,7 +396,7 @@ export default function AnalysisTools({ currentPrice, data }) {
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-sm text-white">EUR / USD</span>
+                <span className="font-bold text-sm text-slate-100">EUR / USD</span>
                 <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-mono text-xs rounded font-bold">+0.82</span>
               </div>
               <p className="text-xs text-slate-400">Positive Correlation (ทิศทางตามกัน)</p>

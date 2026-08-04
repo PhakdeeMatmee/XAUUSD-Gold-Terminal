@@ -208,9 +208,9 @@ export default function TradeSimulator({ currentPrice }) {
       {/* Custom Balance Setup Modal */}
       {showBalanceModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0e121b] border border-amber-500/40 rounded-2xl p-6 max-w-md w-full shadow-2xl flex flex-col gap-5">
+          <div className="bg-slate-900 border border-amber-500/40 rounded-2xl p-6 max-w-md w-full shadow-2xl flex flex-col gap-5">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
                 <Sliders size={18} className="text-amber-400" />
                 ตั้งค่ายอดเงินพอร์ตจำลอง (Set Account Balance)
               </h3>
@@ -292,7 +292,7 @@ export default function TradeSimulator({ currentPrice }) {
       {/* Simulator Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
             <ShieldAlert size={20} className="text-amber-400" />
             ระบบจำลองการเทรดทองคำ (Gold Strategy Simulator)
           </h2>
@@ -402,7 +402,7 @@ export default function TradeSimulator({ currentPrice }) {
                 max="100"
                 value={lotSize}
                 onChange={(e) => setLotSize(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 font-bold text-sm focus:border-amber-500 focus:outline-none"
               />
             </div>
 
@@ -475,7 +475,7 @@ export default function TradeSimulator({ currentPrice }) {
           {/* Active Positions */}
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                 <Activity size={16} className="text-emerald-400" />
                 สถานะออเดอร์ที่กำลังถืออยู่ (Active Open Positions)
               </h3>
@@ -504,7 +504,7 @@ export default function TradeSimulator({ currentPrice }) {
                         }`}>
                           {pos.type} {pos.lot} Lot
                         </span>
-                        <span>เข้าที่: <strong className="text-white">${pos.entry.toFixed(2)}</strong></span>
+                        <span>เข้าที่: <strong className="text-slate-100">${pos.entry.toFixed(2)}</strong></span>
                         <span className="text-rose-400">SL: ${pos.sl.toFixed(2)}</span>
                         <span className="text-emerald-400">TP: ${pos.tp.toFixed(2)}</span>
                       </div>
@@ -529,7 +529,7 @@ export default function TradeSimulator({ currentPrice }) {
 
           {/* Trade History & Journal */}
           <div className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800">
-            <h3 className="text-sm font-bold text-white mb-3">บันทึกประวัติการเทรดที่ปิดแล้ว (Trade History & Journal)</h3>
+            <h3 className="text-sm font-bold text-slate-100 mb-3">บันทึกประวัติการเทรดที่ปิดแล้ว (Trade History & Journal)</h3>
             
             {history.length === 0 ? (
               <div className="py-6 text-center text-xs text-slate-500">ไม่มีประวัติการเทรดที่ปิดแล้ว</div>

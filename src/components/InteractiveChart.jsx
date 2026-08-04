@@ -54,7 +54,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
     const height = canvas.height = canvas.parentElement.clientHeight || 550;
 
     // Clear canvas
-    ctx.fillStyle = '#090b10';
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
 
     // Layout Dimensions
@@ -89,7 +89,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
     const getY = (price) => paddingTop + mainHeight - ((price - localLow) / priceRange) * mainHeight;
 
     // --- 1. Draw Grid Lines & Price Scale ---
-    ctx.strokeStyle = '#161c28';
+    ctx.strokeStyle = '#e0e3eb';
     ctx.lineWidth = 1;
 
     // Horizontal Grid (Price levels)
@@ -104,7 +104,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       ctx.stroke();
 
       // Price Label
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#787b86';
       ctx.font = '11px "JetBrains Mono", monospace';
       ctx.fillText(`$${p.toFixed(1)}`, width - paddingRight + 8, y + 4);
     }
@@ -114,16 +114,16 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       srLevels.supports.forEach(sup => {
         if (sup >= localLow && sup <= localHigh) {
           const y = getY(sup);
-          ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
+          ctx.fillStyle = 'rgba(8, 153, 129, 0.04)';
           ctx.fillRect(paddingLeft, y - 8, mainWidth, 16);
-          ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+          ctx.strokeStyle = 'rgba(8, 153, 129, 0.25)';
           ctx.setLineDash([4, 4]);
           ctx.beginPath();
           ctx.moveTo(paddingLeft, y);
           ctx.lineTo(width - paddingRight, y);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = '#10b981';
+          ctx.fillStyle = '#089981';
           ctx.fillText(`Sup $${sup}`, width - paddingRight + 8, y + 3);
         }
       });
@@ -131,16 +131,16 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       srLevels.resistances.forEach(res => {
         if (res >= localLow && res <= localHigh) {
           const y = getY(res);
-          ctx.fillStyle = 'rgba(244, 63, 94, 0.08)';
+          ctx.fillStyle = 'rgba(242, 54, 69, 0.04)';
           ctx.fillRect(paddingLeft, y - 8, mainWidth, 16);
-          ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)';
+          ctx.strokeStyle = 'rgba(242, 54, 69, 0.25)';
           ctx.setLineDash([4, 4]);
           ctx.beginPath();
           ctx.moveTo(paddingLeft, y);
           ctx.lineTo(width - paddingRight, y);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = '#f43f5e';
+          ctx.fillStyle = '#f23645';
           ctx.fillText(`Res $${res}`, width - paddingRight + 8, y + 3);
         }
       });
@@ -149,12 +149,12 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
     // --- 3. Draw Fibonacci Retracement ---
     if (showFib && fibLevels) {
       const fibs = [
-        { label: '0.0%', val: fibLevels.level0, color: '#94a3b8' },
-        { label: '23.6%', val: fibLevels.level236, color: '#60a5fa' },
-        { label: '38.2%', val: fibLevels.level382, color: '#38bdf8' },
-        { label: '50.0%', val: fibLevels.level500, color: '#f59e0b' },
-        { label: '61.8%', val: fibLevels.level618, color: '#a855f7' },
-        { label: '100.0%', val: fibLevels.level100, color: '#94a3b8' }
+        { label: '0.0%', val: fibLevels.level0, color: '#787b86' },
+        { label: '23.6%', val: fibLevels.level236, color: '#2962ff' },
+        { label: '38.2%', val: fibLevels.level382, color: '#00bcd4' },
+        { label: '50.0%', val: fibLevels.level500, color: '#ff9800' },
+        { label: '61.8%', val: fibLevels.level618, color: '#9c27b0' },
+        { label: '100.0%', val: fibLevels.level100, color: '#787b86' }
       ];
 
       fibs.forEach(f => {
@@ -200,7 +200,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
         }
       }
       ctx.closePath();
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.07)';
+      ctx.fillStyle = 'rgba(41, 98, 255, 0.04)';
       ctx.fill();
     }
 
@@ -223,9 +223,9 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       ctx.stroke();
     };
 
-    if (showEMA20) drawLineIndicator(ema20, '#06b6d4', 1.8);
-    if (showEMA50) drawLineIndicator(ema50, '#f59e0b', 1.8);
-    if (showEMA200) drawLineIndicator(ema200, '#a855f7', 2.0);
+    if (showEMA20) drawLineIndicator(ema20, '#2196f3', 1.8);
+    if (showEMA50) drawLineIndicator(ema50, '#ff9800', 1.8);
+    if (showEMA200) drawLineIndicator(ema200, '#9c27b0', 2.0);
 
     // --- 6. Draw Candlesticks / Line Chart ---
     if (chartType === 'candles') {
@@ -237,7 +237,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
         const yLow = getY(d.low);
 
         const isBullish = d.close >= d.open;
-        const color = isBullish ? '#10b981' : '#f43f5e';
+        const color = isBullish ? '#089981' : '#f23645';
 
         // High-Low Wick
         ctx.strokeStyle = color;
@@ -256,7 +256,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
         ctx.fillRect(x - bodyWidth / 2, bodyTop, bodyWidth, bodyHeight);
       });
     } else {
-      ctx.strokeStyle = '#38bdf8';
+      ctx.strokeStyle = '#2196f3';
       ctx.lineWidth = 2;
       ctx.beginPath();
       visibleData.forEach((d, i) => {
@@ -272,8 +272,10 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
     const lastVisible = visibleData[visibleData.length - 1];
     if (lastVisible) {
       const yCurrent = getY(lastVisible.close);
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 1;
+      const isBullish = lastVisible.close >= lastVisible.open;
+      const markerColor = isBullish ? '#089981' : '#f23645';
+      ctx.strokeStyle = markerColor;
+      ctx.lineWidth = 1.2;
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
       ctx.moveTo(paddingLeft, yCurrent);
@@ -282,9 +284,9 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       ctx.setLineDash([]);
 
       // Price Tag Box
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = markerColor;
       ctx.fillRect(width - paddingRight, yCurrent - 10, paddingRight - 5, 20);
-      ctx.fillStyle = '#090b10';
+      ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 11px "JetBrains Mono"';
       ctx.fillText(`$${lastVisible.close.toFixed(2)}`, width - paddingRight + 4, yCurrent + 4);
     }
@@ -295,34 +297,34 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       const subHeight = paddingBottom - 35;
 
       // Sub-chart border & grid
-      ctx.strokeStyle = '#1e293b';
+      ctx.strokeStyle = '#e0e3eb';
       ctx.strokeRect(paddingLeft, subTop, mainWidth, subHeight);
 
       if (subChart === 'RSI') {
         // RSI Guidelines 70 and 30
         const getRsiY = (val) => subTop + subHeight - (val / 100) * subHeight;
         
-        ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)';
+        ctx.strokeStyle = 'rgba(242, 54, 69, 0.25)';
         ctx.setLineDash([3, 3]);
         ctx.beginPath();
         ctx.moveTo(paddingLeft, getRsiY(70));
         ctx.lineTo(width - paddingRight, getRsiY(70));
         ctx.stroke();
 
-        ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+        ctx.strokeStyle = 'rgba(8, 153, 129, 0.25)';
         ctx.beginPath();
         ctx.moveTo(paddingLeft, getRsiY(30));
         ctx.lineTo(width - paddingRight, getRsiY(30));
         ctx.stroke();
         ctx.setLineDash([]);
 
-        ctx.fillStyle = '#64748b';
+        ctx.fillStyle = '#787b86';
         ctx.font = '10px "JetBrains Mono"';
         ctx.fillText('70 OB', width - paddingRight + 6, getRsiY(70) + 3);
         ctx.fillText('30 OS', width - paddingRight + 6, getRsiY(30) + 3);
 
         // Draw RSI Curve
-        ctx.strokeStyle = '#a855f7';
+        ctx.strokeStyle = '#9c27b0';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
@@ -339,7 +341,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
         ctx.stroke();
 
         // Label
-        ctx.fillStyle = '#a855f7';
+        ctx.fillStyle = '#9c27b0';
         ctx.font = 'bold 11px sans-serif';
         const latestRsi = rsi[rsi.length - 1] || 50;
         ctx.fillText(`RSI (14): ${latestRsi}`, paddingLeft + 10, subTop + 16);
@@ -354,14 +356,14 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
             const x = getX(i);
             const yZero = getMacdY(0);
             const yHist = getMacdY(hist);
-            const color = hist >= 0 ? 'rgba(16, 185, 129, 0.7)' : 'rgba(244, 63, 94, 0.7)';
+            const color = hist >= 0 ? 'rgba(8, 153, 129, 0.7)' : 'rgba(242, 54, 69, 0.7)';
             ctx.fillStyle = color;
             ctx.fillRect(x - candleWidth * 0.35, Math.min(yZero, yHist), candleWidth * 0.7, Math.abs(yHist - yZero));
           }
         });
 
         // MACD Line
-        ctx.strokeStyle = '#38bdf8';
+        ctx.strokeStyle = '#2196f3';
         ctx.lineWidth = 1.4;
         ctx.beginPath();
         let started = false;
@@ -378,7 +380,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
         ctx.stroke();
 
         // Label
-        ctx.fillStyle = '#38bdf8';
+        ctx.fillStyle = '#2196f3';
         ctx.font = 'bold 11px sans-serif';
         ctx.fillText(`MACD (12,26,9)`, paddingLeft + 10, subTop + 16);
       }
@@ -546,7 +548,7 @@ export default function InteractiveChart({ data, timeframe, setTimeframe, liveTi
       {hoverInfo && hoverInfo.candle && (
         <div className="flex flex-wrap items-center gap-4 px-3 py-1.5 bg-slate-950/80 rounded-lg border border-slate-800 text-xs font-mono">
           <span className="text-slate-400">{hoverInfo.candle.timeString}</span>
-          <span className="text-slate-400">O: <strong className="text-white">${hoverInfo.candle.open.toFixed(2)}</strong></span>
+          <span className="text-slate-400">O: <strong className="text-slate-100">${hoverInfo.candle.open.toFixed(2)}</strong></span>
           <span className="text-slate-400">H: <strong className="text-emerald-400">${hoverInfo.candle.high.toFixed(2)}</strong></span>
           <span className="text-slate-400">L: <strong className="text-rose-400">${hoverInfo.candle.low.toFixed(2)}</strong></span>
           <span className="text-slate-400">C: <strong className="text-amber-400">${hoverInfo.candle.close.toFixed(2)}</strong></span>
