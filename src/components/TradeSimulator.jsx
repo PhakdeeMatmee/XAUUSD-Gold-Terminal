@@ -2,29 +2,75 @@ import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Play, ArrowUpRight, ArrowDownRight, CheckCircle2, AlertCircle, RefreshCw, Activity, DollarSign, Target, Settings, Sliders, X, TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function TradeSimulator({ currentPrice }) {
-  // Load initial balance from localStorage or default to 10000
-  const [balance, setBalance] = useState(() => {
-    const saved = localStorage.getItem('xau_sim_balance_v3');
-    return saved !== null ? parseFloat(saved) : 10000;
+  // Load active trader from localStorage or default to 'phakdee'
+  const [activeTrader, setActiveTrader] = useState(() => {
+    return localStorage.getItem('xau_sim_active_trader_v4') || 'phakdee';
   });
 
-  // Load positions from localStorage
-  const [positions, setPositions] = useState(() => {
-    const saved = localStorage.getItem('xau_sim_positions_v3');
-    if (saved !== null) {
-      try { return JSON.parse(saved); } catch (e) {}
+  // Load all traders data, with fallback to legacy balance, positions, and history for migration
+  const [traders, setTraders] = useState(() => {
+    const saved = localStorage.getItem('xau_sim_traders_v4');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.phakdee && parsed.suthas && parsed.nok) {
+          return parsed;
+        }
+      } catch (e) {
+        console.warn("Failed to parse saved traders data, falling back", e);
+      }
     }
-    return [];
+
+    const oldBalance = localStorage.getItem('xau_sim_balance_v3');
+    const oldPositions = localStorage.getItem('xau_sim_positions_v3');
+    const oldHistory = localStorage.getItem('xau_sim_history_v3');
+
+    const parseJson = (str, fallback) => {
+      if (!str) return fallback;
+      try { return JSON.parse(str); } catch (e) { return fallback; }
+    };
+
+    return {
+      phakdee: {
+        balance: oldBalance !== null ? parseFloat(oldBalance) : 10000,
+        positions: parseJson(oldPositions, []),
+        history: parseJson(oldHistory, [])
+      },
+      suthas: {
+        balance: 10000,
+        positions: [],
+        history: []
+      },
+      nok: {
+        balance: 10000,
+        positions: [],
+        history: []
+      }
+    };
   });
 
-  // Load history from localStorage
-  const [history, setHistory] = useState(() => {
-    const saved = localStorage.getItem('xau_sim_history_v3');
-    if (saved !== null) {
-      try { return JSON.parse(saved); } catch (e) {}
-    }
-    return [];
-  });
+  const { balance, positions, history } = traders[activeTrader];
+
+  // Persist activeTrader state
+  useEffect(() => {
+    localStorage.setItem('xau_sim_active_trader_v4', activeTrader);
+  }, [activeTrader]);
+
+  const updateActiveTrader = (updater) => {
+    setTraders(prev => {
+      const activeAccount = prev[activeTrader];
+      const fields = typeof updater === 'function' ? updater(activeAccount) : updater;
+      const updated = {
+        ...prev,
+        [activeTrader]: {
+          ...activeAccount,
+          ...fields
+        }
+      };
+      localStorage.setItem('xau_sim_traders_v4', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const [tradeType, setTradeType] = useState('BUY');
   const [lotSize, setLotSize] = useState(0.2);
@@ -37,20 +83,7 @@ export default function TradeSimulator({ currentPrice }) {
   const [customBalanceInput, setCustomBalanceInput] = useState('10000');
   const [resetHistoryWithBalance, setResetHistoryWithBalance] = useState(false);
 
-  // Auto save balance, positions, and history to localStorage whenever state changes
-  useEffect(() => {
-    localStorage.setItem('xau_sim_balance_v3', balance.toString());
-  }, [balance]);
-
-  useEffect(() => {
-    localStorage.setItem('xau_sim_positions_v3', JSON.stringify(positions));
-  }, [positions]);
-
-  useEffect(() => {
-    localStorage.setItem('xau_sim_history_v3', JSON.stringify(history));
-  }, [history]);
-
-  // Auto update SL/TP default values when currentPrice changes if user hasn't edited
+  // Auto update SL/TP default values when tradeType changes
   useEffect(() => {
     if (tradeType === 'BUY') {
       setSlPrice((currentPrice - 8.00).toFixed(2));
@@ -67,26 +100,88 @@ export default function TradeSimulator({ currentPrice }) {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Monitor live price against open positions to trigger SL or TP
+  // Monitor live price against open positions to trigger SL or TP for ALL traders
   useEffect(() => {
-    if (positions.length === 0) return;
+    let changed = false;
+    const nextTraders = { ...traders };
 
-    positions.forEach(pos => {
-      let triggered = null; // 'TP' | 'SL'
+    Object.keys(nextTraders).forEach(traderName => {
+      const account = nextTraders[traderName];
+      if (account.positions.length === 0) return;
 
-      if (pos.type === 'BUY') {
-        if (currentPrice >= pos.tp) triggered = 'TP';
-        else if (currentPrice <= pos.sl) triggered = 'SL';
-      } else { // SELL
-        if (currentPrice <= pos.tp) triggered = 'TP';
-        else if (currentPrice >= pos.sl) triggered = 'SL';
-      }
+      const activePositions = [];
+      const newHistory = [...account.history];
+      let newBalance = account.balance;
+      let accountChanged = false;
 
-      if (triggered) {
-        closePosition(pos, currentPrice, triggered);
+      account.positions.forEach(pos => {
+        let triggered = null; // 'TP' | 'SL'
+
+        if (pos.type === 'BUY') {
+          if (currentPrice >= pos.tp) triggered = 'TP';
+          else if (currentPrice <= pos.sl) triggered = 'SL';
+        } else { // SELL
+          if (currentPrice <= pos.tp) triggered = 'TP';
+          else if (currentPrice >= pos.sl) triggered = 'SL';
+        }
+
+        if (triggered) {
+          accountChanged = true;
+          changed = true;
+          
+          let pnl = 0;
+          if (pos.type === 'BUY') {
+            pnl = (currentPrice - pos.entry) * pos.lot * 100;
+          } else {
+            pnl = (pos.entry - currentPrice) * pos.lot * 100;
+          }
+
+          const isWin = pnl >= 0;
+          const closedRecord = {
+            id: pos.id,
+            type: pos.type,
+            lot: pos.lot,
+            entry: pos.entry,
+            exit: currentPrice,
+            pnl: parseFloat(pnl.toFixed(2)),
+            result: isWin ? 'WIN' : 'LOSS',
+            date: new Date().toLocaleDateString()
+          };
+
+          newBalance += pnl;
+          newHistory.unshift(closedRecord);
+
+          // Trigger toast for active trader, info alert for background ones
+          if (traderName === activeTrader) {
+            if (triggered === 'TP') {
+              showToast(`🎯 ชนเป้ากำไร Take Profit! ชนะ +$${pnl.toFixed(2)}`, 'success');
+            } else {
+              showToast(`🛑 ชนจุดตัดขาดทุน Stop Loss! ขาดทุน -${Math.abs(pnl).toFixed(2)}`, 'error');
+            }
+          } else {
+            const thaiNames = { phakdee: 'ภักดี', suthas: 'สุทศน์', nok: 'นก' };
+            showToast(`📈 ออเดอร์ของ ${thaiNames[traderName] || traderName} ชน ${triggered === 'TP' ? 'TP' : 'SL'}!`, 'info');
+          }
+        } else {
+          activePositions.push(pos);
+        }
+      });
+
+      if (accountChanged) {
+        nextTraders[traderName] = {
+          ...account,
+          balance: newBalance,
+          positions: activePositions,
+          history: newHistory
+        };
       }
     });
-  }, [currentPrice, positions]);
+
+    if (changed) {
+      setTraders(nextTraders);
+      localStorage.setItem('xau_sim_traders_v4', JSON.stringify(nextTraders));
+    }
+  }, [currentPrice, traders, activeTrader]);
 
   // Execute new order
   const handleOpenTrade = () => {
@@ -109,7 +204,9 @@ export default function TradeSimulator({ currentPrice }) {
       openTime: new Date().toLocaleTimeString()
     };
 
-    setPositions([newPos, ...positions]);
+    updateActiveTrader({
+      positions: [newPos, ...positions]
+    });
     showToast(`ส่งคำสั่ง ${tradeType} ${lot} Lot สำเร็จที่ราคา $${currentPrice.toFixed(2)}`, 'success');
   };
 
@@ -134,9 +231,11 @@ export default function TradeSimulator({ currentPrice }) {
       date: new Date().toLocaleDateString()
     };
 
-    setBalance(prev => prev + pnl);
-    setHistory(prev => [closedRecord, ...prev]);
-    setPositions(prev => prev.filter(p => p.id !== pos.id));
+    updateActiveTrader({
+      balance: balance + pnl,
+      history: [closedRecord, ...history],
+      positions: positions.filter(p => p.id !== pos.id)
+    });
 
     if (triggerReason === 'TP') {
       showToast(`🎯 ชนเป้ากำไร Take Profit! ชนะ +$${pnl.toFixed(2)}`, 'success');
@@ -155,14 +254,16 @@ export default function TradeSimulator({ currentPrice }) {
       return;
     }
 
-    setBalance(val);
-    localStorage.setItem('xau_sim_balance_v3', val.toString());
-
     if (resetHistoryWithBalance) {
-      setPositions([]);
-      setHistory([]);
-      localStorage.setItem('xau_sim_positions_v3', JSON.stringify([]));
-      localStorage.setItem('xau_sim_history_v3', JSON.stringify([]));
+      updateActiveTrader({
+        balance: val,
+        positions: [],
+        history: []
+      });
+    } else {
+      updateActiveTrader({
+        balance: val
+      });
     }
     setShowBalanceModal(false);
     showToast(`บันทึกเงินพอร์ตจำลองใหม่เป็น $${val.toLocaleString()} เรียบร้อยแล้ว (บันทึกถาวร)`, 'success');
@@ -302,6 +403,29 @@ export default function TradeSimulator({ currentPrice }) {
         {/* Balance & Real-time Equity Stats Bar */}
         <div className="flex flex-wrap items-center gap-3 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800 font-mono text-sm">
           
+          {/* Active Trader Switcher */}
+          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800 mr-1 shrink-0">
+            {[
+              { id: 'phakdee', label: 'ภักดี' },
+              { id: 'suthas', label: 'สุทศน์' },
+              { id: 'nok', label: 'นก' }
+            ].map(t => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTrader(t.id)}
+                className={`px-2.5 py-0.5 rounded text-[11px] font-bold font-sans transition-all cursor-pointer whitespace-nowrap ${
+                  activeTrader === t.id
+                    ? 'bg-amber-500 text-slate-950 shadow-md font-extrabold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="h-6 w-[1px] bg-slate-800 hidden sm:block mr-1"></div>
+
           {/* Balance */}
           <div>
             <span className="text-xs text-slate-400 block font-sans">เงินทุนหลัก (Balance):</span>
